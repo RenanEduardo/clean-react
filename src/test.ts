@@ -1,3 +1,0 @@
-export testand() {
-    return null
-}
