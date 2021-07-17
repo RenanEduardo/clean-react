@@ -28,6 +28,6 @@
     "typescript": "^4.3.5"
   },
   "lint-staged": {
-    "*.js": "eslint 'src/**' --fix"
+    "*.ts": "eslint 'src/**' --fix"
   }
 }
