@@ -10,6 +10,7 @@
 			"editor.formatOnSave": true
 		  },
 		  "editor.formatOnSave": true,
-		  "eslint.codeActionsOnSave.mode": "problems",
+		"eslint.codeActionsOnSave.mode": "problems",
+		"editor.tabSize": 2,
 	}
 	}
