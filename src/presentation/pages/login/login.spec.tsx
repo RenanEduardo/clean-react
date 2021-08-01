@@ -79,7 +79,7 @@ describe('Login Component', () => {
     expect(passwordStatus.textContent).toBe('🟢')
   })
 
-  test('Should enable busmit button if form is valid', () => {
+  test('Should enable submit button if form is valid', () => {
     const { sut } = makeSut()
     const emailInput = sut.getByTestId('email')
     fireEvent.input(emailInput, { target: { value: Faker.internet.email() } })
@@ -87,5 +87,17 @@ describe('Login Component', () => {
     fireEvent.input(passwordInput, { target: { value: Faker.internet.password() } })
     const submitButton = sut.getByTestId('submit') as HTMLButtonElement
     expect(submitButton.disabled).toBe(false)
+  })
+
+  test('Should show spinner on submit', () => {
+    const { sut } = makeSut()
+    const emailInput = sut.getByTestId('email')
+    fireEvent.input(emailInput, { target: { value: Faker.internet.email() } })
+    const passwordInput = sut.getByTestId('password')
+    fireEvent.input(passwordInput, { target: { value: Faker.internet.password() } })
+    const submitButton = sut.getByTestId('submit')
+    fireEvent.click(submitButton)
+    const spinner = sut.getByTestId('spinner')
+    expect(spinner).toBeTruthy()
   })
 })
