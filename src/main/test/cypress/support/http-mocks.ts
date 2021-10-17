@@ -29,7 +29,7 @@ export const mockUnexpectedError = (method: Method, url: RegExp): void => {
 }
 
 export const mockOk = (method: Method, url: RegExp, response: any): void => {
-  cy.intercept('POST',/login/, {
+  cy.intercept(method,url, {
     statusCode: 200,
     ...response
   }).as('request')
