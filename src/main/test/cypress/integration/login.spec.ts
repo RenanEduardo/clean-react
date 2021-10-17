@@ -45,7 +45,6 @@ describe('Login', () => {
     simulateValidSubmit()
     FormHelper.testMainError('Credenciais inválidas')
     FormHelper.testUrl('/login')
-    FormHelper.testUrl('/login')
   })
 
   it('Should present UnexpectedError on default error cases', () => {
