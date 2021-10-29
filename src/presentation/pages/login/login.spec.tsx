@@ -4,13 +4,13 @@ import { createMemoryHistory } from 'history'
 import faker from 'faker'
 import { render, RenderResult, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import Login from './login'
-import { ValidationStub, AuthenticationSpy, SaveAccessTokenMock, Helper } from '@/presentation/test'
+import { ValidationStub, AuthenticationSpy, UpdateCurrentAccountMock, Helper } from '@/presentation/test'
 import { InvalidCredentialsError } from '@/domain/errors'
 
 type SutTypes = {
   sut: RenderResult
   authenticationSpy: AuthenticationSpy
-  saveAccessTokenMock: SaveAccessTokenMock
+  updateCurrentAccountMock: UpdateCurrentAccountMock
 }
 type SutParams = {
   validationError: string
@@ -21,22 +21,22 @@ const makeSut = (params?: SutParams): SutTypes => {
   const validationStub = new ValidationStub()
   validationStub.errorMessage = params?.validationError
   const authenticationSpy = new AuthenticationSpy()
-  const saveAccessTokenMock = new SaveAccessTokenMock()
+  const updateCurrentAccountMock = new UpdateCurrentAccountMock()
   const sut = render(
     <Router history={history}>
-      <Login validation={validationStub} authentication={authenticationSpy} saveAccessToken={saveAccessTokenMock} />
+      <Login validation={validationStub} authentication={authenticationSpy} updateCurrentAccount={updateCurrentAccountMock} />
     </Router>
   )
   return {
     sut,
     authenticationSpy,
-    saveAccessTokenMock
+    updateCurrentAccountMock
   }
 }
 
 const simulateValidSubmit = async (sut: RenderResult, email = faker.internet.email(), password = faker.internet.password()): Promise<void> => {
-  Helper.populateField(sut,'email', email)
-  Helper.populateField(sut,'password', password)
+  Helper.populateField(sut, 'email', email)
+  Helper.populateField(sut, 'password', password)
   const form = sut.getByTestId('form')
   fireEvent.submit(form)
   await waitFor(() => form)
@@ -47,7 +47,7 @@ describe('Login Component', () => {
   test('Should start with initial state', () => {
     const validationError = faker.random.words()
     const { sut } = makeSut({ validationError })
-    Helper.testChildCount(sut, 'error-wrap' ,0)
+    Helper.testChildCount(sut, 'error-wrap', 0)
     Helper.testButtonIsDisabled(sut, 'submit', true)
     Helper.testStatusForField(sut, 'email', validationError)
     Helper.testStatusForField(sut, 'password', validationError)
@@ -56,7 +56,7 @@ describe('Login Component', () => {
   test('Should show email error if Validation fails', () => {
     const validationError = faker.random.words()
     const { sut } = makeSut({ validationError })
-    Helper.populateField(sut,'email')
+    Helper.populateField(sut, 'email')
     Helper.testStatusForField(sut, 'email', validationError)
   })
 
@@ -120,24 +120,24 @@ describe('Login Component', () => {
     jest.spyOn(authenticationSpy, 'auth').mockRejectedValueOnce(error)
     await simulateValidSubmit(sut)
     Helper.testElementText(sut, 'main-error', error.message)
-    Helper.testChildCount(sut,'error-wrap',1)
+    Helper.testChildCount(sut, 'error-wrap', 1)
   })
 
-  test('Should call SaveAccessToken on success', async () => {
-    const { sut, authenticationSpy, saveAccessTokenMock } = makeSut()
+  test('Should call UpdateCurrentAccount on success', async () => {
+    const { sut, authenticationSpy, updateCurrentAccountMock } = makeSut()
     await simulateValidSubmit(sut)
-    expect(saveAccessTokenMock.accessToken).toBe(authenticationSpy.account.accessToken)
+    expect(updateCurrentAccountMock.account).toEqual(authenticationSpy.account)
     expect(history.length).toBe(1)
     expect(history.location.pathname).toBe('/')
   })
 
-  test('Should present error if SaveAccessToken fails', async () => {
-    const { sut, saveAccessTokenMock } = makeSut()
+  test('Should present error if UpdateCurrentAccount fails', async () => {
+    const { sut, updateCurrentAccountMock } = makeSut()
     const error = new InvalidCredentialsError()
-    jest.spyOn(saveAccessTokenMock, 'save').mockRejectedValueOnce(error)
+    jest.spyOn(updateCurrentAccountMock, 'save').mockRejectedValueOnce(error)
     await simulateValidSubmit(sut)
     Helper.testElementText(sut, 'main-error', error.message)
-    Helper.testChildCount(sut,'error-wrap', 1)
+    Helper.testChildCount(sut, 'error-wrap', 1)
   })
 
   test('Should got to signup page', async () => {

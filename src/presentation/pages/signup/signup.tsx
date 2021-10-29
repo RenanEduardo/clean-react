@@ -4,14 +4,14 @@ import Styles from './signup-styles.scss'
 import { LoginHeader, Input, FormStatus, Footer, SubmitButton } from '@/presentation/components'
 import Context from '@/presentation/contexts/form/form-context'
 import { Validation } from '@/presentation/protocols/validation'
-import { AddAccount, SaveAccessToken } from '@/domain/usecases'
+import { AddAccount, UpdateCurrentAccount } from '@/domain/usecases'
 
 type Props = {
   validation: Validation
   addAccount: AddAccount
-  saveAccessToken: SaveAccessToken
+  updateCurrentAccount: UpdateCurrentAccount
 }
-const SignUp: React.FC<Props> = ({ validation, addAccount, saveAccessToken }: Props) => {
+const SignUp: React.FC<Props> = ({ validation, addAccount, updateCurrentAccount }: Props) => {
   const history = useHistory()
   const [state, setState] = useState({
     isLoading: false,
@@ -30,7 +30,7 @@ const SignUp: React.FC<Props> = ({ validation, addAccount, saveAccessToken }: Pr
   useEffect(() => {
     const { name, email, password, passwordConfirmation } = state
     const formData = { name, email, password, passwordConfirmation }
-    const nameError = validation.validate('name',formData)
+    const nameError = validation.validate('name', formData)
     const emailError = validation.validate('email', formData)
     const passwordError = validation.validate('password', formData)
     const passwordConfirmationError = validation.validate('passwordConfirmation', formData)
@@ -43,7 +43,7 @@ const SignUp: React.FC<Props> = ({ validation, addAccount, saveAccessToken }: Pr
       passwordConfirmationError,
       isFormInvalid: !!nameError || !!emailError || !!passwordError || !!passwordConfirmationError
     })
-  }, [state.name, state.email, state.password,state.passwordConfirmation])
+  }, [state.name, state.email, state.password, state.passwordConfirmation])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
@@ -59,7 +59,7 @@ const SignUp: React.FC<Props> = ({ validation, addAccount, saveAccessToken }: Pr
         password: state.password,
         passwordConfirmation: state.passwordConfirmation
       })
-      await saveAccessToken.save(account.accessToken)
+      await updateCurrentAccount.save(account)
       history.replace('/')
     } catch (error) {
       setState({ ...state, isLoading: false, mainError: error.message })
@@ -72,10 +72,10 @@ const SignUp: React.FC<Props> = ({ validation, addAccount, saveAccessToken }: Pr
       <Context.Provider value={{ state, setState }}>
         <form data-testid="form" className={Styles.form} onSubmit={handleSubmit}>
           <h2>Criar Conta</h2>
-          <Input type="text" name="name" placeholder="Digite seu nome"/>
-          <Input type="email" name="email" placeholder="Digite sua e-mail"/>
-          <Input type="password" name="password" placeholder="Digite sua senha"/>
-          <Input type="password" name="passwordConfirmation" placeholder="Repita sua senha"/>
+          <Input type="text" name="name" placeholder="Digite seu nome" />
+          <Input type="email" name="email" placeholder="Digite sua e-mail" />
+          <Input type="password" name="password" placeholder="Digite sua senha" />
+          <Input type="password" name="passwordConfirmation" placeholder="Repita sua senha" />
           <SubmitButton text="Cadastrar" />
           <Link data-testid="login-link" replace to="/login" className={Styles.link}>Voltar Para Login</Link>
           <FormStatus />
